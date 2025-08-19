@@ -1,0 +1,41 @@
+# C:\Users\Tanee\my-bot-files\.github\workflows\apply-updates.yml
+name: Apply Tutor Updates
+
+on:
+  workflow_dispatch:
+    inputs:
+      updates_json:
+        description: "Updates JSON (schema v1)"
+        required: true
+        type: string
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Write JSON to file
+        run: |
+          printf '%s' "${{ github.event.inputs.updates_json }}" > updates.json
+
+      - name: Apply updates
+        run: python scripts/apply_updates.py updates.json
+
+      - name: Commit & push (if any changes)
+        run: |
+          git config user.name "malzadoe-bot"
+          git config user.email "bot@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "chore: apply tutor updates"
+            git push
+          else
+            echo "No changes to commit."
+          fi
