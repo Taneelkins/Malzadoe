@@ -1,13 +1,16 @@
-# C:\Users\Tanee\my-bot-files\.github\workflows\apply-updates.yml
 name: Apply Tutor Updates
 
 on:
   workflow_dispatch:
     inputs:
       updates_json:
-        description: "Updates JSON (schema v1)"
+        description: "Updates JSON (schema v1). Paste valid JSON with double quotes."
         required: true
         type: string
+
+# Needed so the workflow can commit/push changes back to the repo
+permissions:
+  contents: write
 
 jobs:
   apply:
@@ -15,18 +18,34 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
 
+      # Write the JSON input to a file EXACTLY as provided (handles newlines, quotes safely)
       - name: Write JSON to file
         run: |
-          printf '%s' "${{ github.event.inputs.updates_json }}" > updates.json
+          cat > updates.json <<'JSON'
+          ${{ github.event.inputs.updates_json }}
+          JSON
+          echo "Wrote updates.json:"
+          wc -c updates.json
+          echo "---"
+          head -c 400 updates.json || true
+          echo ""
+          echo "--- end preview ---"
 
       - name: Apply updates
         run: python scripts/apply_updates.py updates.json
+
+      - name: Show git status (debug)
+        run: |
+          git status
+          git diff --name-only || true
 
       - name: Commit & push (if any changes)
         run: |
