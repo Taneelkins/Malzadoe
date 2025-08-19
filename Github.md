@@ -1,4 +1,3 @@
-# C:\Users\Tanee\Malzadoe\Github.md
 # Github.md
 Bootstrap: stores the canonical repo URL for Malzadoe to load rules/memory.
 
