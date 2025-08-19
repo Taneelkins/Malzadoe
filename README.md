@@ -121,3 +121,42 @@ git pull --rebase origin main
 ---
 
 _End of README._
+
+---
+
+## 🆕 Adding Rules and Notes During Chat
+
+To make Malzadoe automatically generate JSON updates, use simple tags while you chat.  
+At the end of a session, ask **“SAVE JSON”** and Malzadoe will produce the correct payload.
+
+### Tags
+
+- `+mem:` note → goes to **Memory.md** (under “Active Notes”)
+- `+fix:` action | result | next → new row in **FixLog.csv**
+- `+pref:` rule → bullet in **Preferences.md**
+- `+corr:` corrected text/code → entry in **Corrections.md**
+- `+map:` Key => Value → added to **Variable-Mapping.md**
+- `+lesson:` item → logged in **Curriculum-Tracker.md**
+
+### Example usage
+
+```
++mem: Add debounce to input handler.
++fix: Restart LSP | Worked | None
++pref: Keep examples under 20 lines.
++map: PlayerService => Players
++lesson: Covered tables vs dictionaries.
+```
+
+At the end of the chat, say **SAVE JSON**.  
+Malzadoe will generate a JSON like:
+
+```json
+{"ops":[
+  {"file":"Memory.md","op":"append","section":"Active Notes","content":"- Add debounce to input handler."},
+  {"file":"FixLog.csv","op":"csv-append","row":["2025-08-20","Restart LSP","Worked","None"]},
+  {"file":"Preferences.md","op":"append","section":"Active Preferences","content":"- Keep examples under 20 lines."},
+  {"file":"Variable-Mapping.md","op":"append","section":"Active Mappings","content":"PlayerService → Players"},
+  {"file":"Curriculum-Tracker.md","op":"append","section":"Completed Lessons","content":"- Covered tables vs dictionaries."}
+]}
+```
